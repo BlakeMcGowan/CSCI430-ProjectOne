@@ -1,6 +1,10 @@
 import java.io.Serializable;
+import java.util.*;
+import java.io.*;
 
-public class SupplierList {
+public class SupplierList implements Serializable
+ {
+    private static final long serialVersionUID = 1L;
     private static int IDGenerator = 0;
     private List suppliers = new LinkedList();
     private static SupplierList supplierList;
@@ -21,11 +25,23 @@ public class SupplierList {
         return suppliers.iterator();
     }
 
-    public boolean insertProduct(Product product) {
-        product.add(product);
+    public boolean insertSupplier(Supplier supplier) {
+        suppliers.add(supplier);
         return true;
-      }
+    }
 
+    public Supplier search (String supplierId)
+    {
+        for (Iterator iterator = suppliers.iterator(); iterator.hasNext();)
+        {
+            Supplier supplier = (Supplier) iterator.next();
+            if (supplier.getId().equals(supplierId))
+            {
+                return supplier;
+            }
+        }
+        return null;
+    }
     private void writeObject(java.io.ObjectOutputStream output)
     {
         try {

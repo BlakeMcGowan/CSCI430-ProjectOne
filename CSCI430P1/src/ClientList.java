@@ -1,4 +1,6 @@
 import java.io.Serializable;
+import java.util.*;
+import java.io.*;
 
 public class ClientList implements Serializable
 {
@@ -26,6 +28,15 @@ public class ClientList implements Serializable
     public Iterator getClients()
     {
         return clients.iterator();
+    }
+    
+    private void writeObject(java.io.ObjectOutputStream output) {
+        try {
+          output.defaultWriteObject();
+          output.writeObject(clientList);
+        } catch(IOException ioe) {
+          ioe.printStackTrace();
+        }
     }
 
     private void readObject(java.io.ObjectInputStream input) {

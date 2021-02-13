@@ -1,20 +1,23 @@
 import java.io.Serializable;
 
 public class Client implements Serializable {
-    private String clientID;
+    private static final long serialVersionUID = 1L;
+    private String clientid;
     private String name;
     private String phone;
     private String address;
-
-    public static void main(String[] args) {
-
-    }
+    private static final String MEMBER_STRING = "C";
 
     //Constructor
     public Client(String name, String phone, String address){
         this.name = name;
         this.phone = phone;
         this.address = address;
+        clientid = MEMBER_STRING + (ClientIDServer.instance()).getId();
+    }
+
+    public String getClientId() {
+        return clientid;
     }
 
     public String getName(){
@@ -24,7 +27,7 @@ public class Client implements Serializable {
     public String getPhone(){
         return phone;
     }
-
+    
     public String getAddress(){
         return address;
     }
@@ -39,5 +42,13 @@ public class Client implements Serializable {
 
     public void setAddress(String newAddress){
         address = newAddress;
+    }
+
+    public boolean equals(String id) {
+        return this.clientid.equals(id);
+    }
+      public String toString() {
+        String string = "Client name " + name + " address " + address + " id " + clientid + " phone " + phone;
+        return string;
     }
 }
