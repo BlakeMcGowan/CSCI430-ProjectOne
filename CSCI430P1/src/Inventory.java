@@ -5,7 +5,7 @@ public class Inventory implements Serializable
 {
     private static final long serialVersionUID = 1L;
     private static int IDGenerator = 0;
-    private List productList = new LinkedList();
+    private List products = new LinkedList();
     private static Inventory inventory;
 
     private Inventory(){}
@@ -20,10 +20,21 @@ public class Inventory implements Serializable
     }
 
     public boolean insertProduct(Product product) {
-        product.add(product);
+        products.add(product);
         return true;
-      }
+    }
 
+    public Product search(String productId)
+    {
+        for (Iterator iterator = products.iterator(); iterator.hasNext();){
+            Product product = (Product) iterator.next();
+            if (product.getId().equals(productId)){
+                return product;
+            }
+        }
+        return null;
+    }
+    
     private void writeObject(java.io.ObjectOutputStream output)
     {
         try
@@ -70,7 +81,7 @@ public class Inventory implements Serializable
         }
     }
 
-    public Iterator getInventory()
+    public Iterator getProducts()
     {
         return products.iterator();
     }

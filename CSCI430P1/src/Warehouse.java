@@ -3,180 +3,154 @@ import java.io.*;
 
 public class Warehouse implements Serializable{
     private static final long serialVersionUID = 1L;
-    public static final int PRODUCT_NOT_FOUND = 1;
-    public static final int PRODUCT_NOT_ISSUED = 2;
-    public static final int PRODUCT_HAS_HOLD = 3;
-    public static final int PRODUCT_ISSUED = 4;
-    public static final int HOLD_PLACED = 5;
-    public static final int NO_HOLD_FOUND = 6;
-    public static final int OPERATION_COMPLETED = 7;
-    public static final int OPERATION_FAILED = 8;
-    public static final int NO_SUCH_SUPPLIER = 9;
-    public static final int NO_SUCH_CLIENT = 10;
+    public static final int SUPPLIER_NOT_FOUND = 1;
+    public static final int PRODUCT_NOT_FOUND = 2;
+    public static final int CLIENT_NOT_FOUND = 3;
+    public static final int NO_SUCH_PRODUCT = 4;
+    public static final int NO_SUCH_SUPPLIER = 5;
+    public static final int NO_SUCH_CLIENT = 6;
+
     private Inventory inventory;
     private SupplierList supplierList;
     private ClientList clientList;
-    private static Warehouse warhouse;
     private static Warehouse warehouse;
     private Warehouse() {
       inventory = Inventory.instance();
       supplierList = SupplierList.instance();
       clientList = ClientList.instance();
-}
+    }
 
-public static Warehouse instance() {
+  public static Warehouse instance() {
     if (warehouse == null) {
-        SupplierIdServer.instance();
-        ClientIdServer.instance(); //instatiates singletons
+        SupplierIDServer.instance(); //instatiates singletons
+        ClientIDServer.instance(); //instatiates singletons
         return (warehouse = new Warehouse());
     }
     else{
         return warehouse;
     }
-}
+  }
 
-public Product addProduct(String name, String supplier, String id){
-    Product product = new Product(name, supplier, id);
+  public Product addProduct(int price, int quantity, String name){
+    Product product = new Product(price, quantity, name);
     if (inventory.insertProduct(product)) {
         return (product);
     }
     return null;
-}
+  }
 
-public Supplier addSupplier(String name, String address, String description){
+  public Supplier addSupplier(String name, String address, String description){
     Supplier supplier = new Supplier (name, address, description);
     if (supplierList.insertSupplier(supplier)){
         return(supplier);
     }
     return null;
-}
+  } 
 
-public Client addClient(String name, String phone, String address){
-    Supplier supplier = new Supplier (name, phone, address);
+  public Client addClient(String name, String phone, String address){
+    Client client = new Client (name, phone, address);
     if (clientList.insertClient(client)){
         return(client);
     }
     return null;
-}
+  }
 
-public int placeHold(String clientId, string productId, int duration){
+  public Product assignProdToSupplier (String productId, String supplierId, Float price){
     Product product = inventory.search(productId);
-    if (product == null){
-        return(PRODUCT_NOT_FOUND);
+    if (product == null)
+    {
+      return null;
     }
-    if (product.getBorrower() == null){
-        return(PRODUCT_NOT_ISSUED);
-    }
-    Client client = clientList.search(clientId);
-    if (client == null){
-        return(NO_SUCH_SUPPLIER);
-    }
-    Hold hold = new hold (client, product, duration);
-    product.placeHold(hold);
-    client.placeHold(hold);
-    return(HOLD_PLACED);
-}
 
-public Supplier searchSupplier(String supplierId){
+    Supplier supplier = supplierList.search(supplierId);
+    if (supplier == null)
+    {
+      return null;
+    }
+
+    int location = 0;
+    location = product.SearchSupplyList(supplier);
+    if (location != -1)
+    {
+      return null;
+    }
+
+    boolean success = product.link(supplier);
+    success = product.addPrice(price);
+    success = supplier.assignProduct(product);
+    if (success) {
+      return product;
+    }
+    else {
+      return null;
+    }
+  }
+
+  public Product removeProdFromSupplier (String productId, String supplierId){
+    Product product = inventory.search(productId);
+    if (product == null)
+    {
+      return null;
+    }
+
+    Supplier supplier = supplierList.search(supplierId);
+    if (supplier == null)
+    {
+      return null;
+    }
+
+    int location = 0;
+    location = product.SearchSupplyList(supplier);
+    if (location == -1)
+    {
+      System.out.println("Product was never assigned to this supplier.");
+      return null;
+    }
+
+    boolean success = product.unlink(supplier);
+    success = product.removePrice(location);
+    success = supplier.removeProduct(product);
+    if (success) {
+      return product;
+    }
+    else {
+      System.out.println("Error 4");
+      return null;
+    }
+  }
+
+  public Product searchProduct(String productId){
+    return inventory.search(productId);
+  }
+
+  public Supplier searchSupplier(String supplierId){
     return supplierList.search(supplierId);
-}
-
-public Supplier processHold(String productId){
-    Product product = inventory.search(productId);
-    if (product == null){
-        return (null);
-    }
-    Hold hold = product.getNextHold();
-    if (hold == null){
-        return (null);
-    }
-    hold.getClient().removeHold(clientId);
-    hold.getProduct().removeHold(hold.getClient().getId());
-    return(hold.getClient());
-}
-
-
-public int removeHold(String clientId, String bookId) {
-    Client client = clientList.search(clientId);
-    if (client == null) {
-      return (NO_SUCH_CLIENT);
-    }
-    Product Product = inventory.search(productId);
-    if (product == null) {
-      return(PRODUCT_NOT_FOUND);
-    }
-    return client.removeHold(productId) && product.removeHold(clientId)? OPERATION_COMPLETED: NO_HOLD_FOUND;
-  }
-  public void removeInvalidHolds() {
-    for (Iterator inventoryIterator = inventory.getProducts(); inventoryIterator.hasNext(); ) {
-      for (Iterator iterator = ((Product) inventoryIterator.next()).getHolds(); iterator.hasNext(); ) {
-        Hold hold = (Hold) iterator.next();
-        if (!hold.isValid()) {
-          hold.getProduct().removeHold(hold.getClient().getId());
-          hold.getClient().removeHold(hold.getProduct().getId());
-        }
-      }
-    }
   }
 
-  public Product issueProduct(String clientId, stringProductId){
-      Product product = inventory.search(productId);
-      if (product == null){
-          return (null);
-      }
-      if (product.getBorrower() != null) {
-          return (null);
-      }
-      Client client = clientList.search(clientId);
-      if (client == null) {
-          return null;
-      }
-      if (!(product.issue(client) && client.issue(product))){
-          return null;
-      }
-      return (product);
-  }
 
 
   public Iterator getProducts() {
-    Client client = clientList.search(clientId);
-    if (client == null) {
-        return(null);
-    }
-    else {
-        return (client.getProductsIssued());
-    }
+    return inventory.getProducts();
   }
-  
-  public int removeProduct(String productId) {
-    Product product = inventory.search(productId);
-    if (product == null) {
-      return(PRODUCT_NOT_FOUND);
-    }
-    if (product.hasHold()) {
-      return(PRODUCT_HAS_HOLD);
-    }
-    if ( product.getBorrower() != null) {
-      return(PRODUCT_ISSUED);
-    }
-    if (inventory.removeProduct(productId)) {
-      return (OPERATION_COMPLETED);
-    }
-    return (OPERATION_FAILED);
-  }
-
-
 
   public Iterator getSuppliers() {
-    return supplierList.getClient();
+    return supplierList.getSuppliers();
+  }
+  
+  public Iterator getClients() {
+    return clientList.getClients();
   }
 
-  public Iterator getTransactions(String productId, Calendar date) {
-    Client client = clientList.search(clientId);
-    if (client == null) {
-      return(null);
-    }
-    return client.getTransactions(date);
+  public Iterator<Supplier> getSuppliersOfProduct (Product p){
+    return p.getSupplier();
+  }
+
+  public Iterator<Product> getProductBySupplier (Supplier s){
+    return s.getProducts();
+  }
+
+  public Iterator<Float> getProductPrices (Product p){
+    return p.getPrices();
   }
 
   public static Warehouse retrieve() {
@@ -184,7 +158,7 @@ public int removeHold(String clientId, String bookId) {
       FileInputStream file = new FileInputStream("WarehouseData");
       ObjectInputStream input = new ObjectInputStream(file);
       input.readObject();
-      ClientIdServer.retrieve(input);
+      ClientIDServer.retrieve(input);
       return warehouse;
     } catch(IOException ioe) {
       ioe.printStackTrace();
@@ -200,7 +174,7 @@ public int removeHold(String clientId, String bookId) {
       FileOutputStream file = new FileOutputStream("WarehouseData");
       ObjectOutputStream output = new ObjectOutputStream(file);
       output.writeObject(warehouse);
-      output.writeObject(ClientIdServer.instance());
+      output.writeObject(ClientIDServer.instance());
       return true;
     } catch(IOException ioe) {
       ioe.printStackTrace();
