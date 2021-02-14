@@ -1,5 +1,6 @@
 import java.io.Serializable;
 import java.util.*;
+import java.io.*;
 
 public class Inventory implements Serializable
 {
@@ -35,18 +36,14 @@ public class Inventory implements Serializable
         return null;
     }
     
-    private void writeObject(java.io.ObjectOutputStream output)
-    {
-        try
-        {
-            output.defaultWriteObject();
-            output.writeObject(inventory);
+    private void writeObject(java.io.ObjectOutputStream output) {
+        try {
+          output.defaultWriteObject();
+          output.writeObject(inventory);
+        } catch(IOException ioe) {
+          ioe.printStackTrace();
         }
-        catch (IOException ioe)
-        {
-            System.out.println(ioe);
-        }
-    }
+      }
 
     private void readObject(java.io.ObjectInputStream input)
     {

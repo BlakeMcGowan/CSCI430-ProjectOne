@@ -7,12 +7,16 @@ public class Supplier implements Serializable
     private String supplierDescription;
     private String supplierAddress;
     private String supplierName;
+    private List SupplierList = new LinkedList();
+    private static final String SUPPLIER_STRING = "S";
+    private List<Product> Product = new LinkedList<Product>();
 
     //Constructor
-    public Supplier(String supplierDescription, String supplierAddress, String supplierName){
-        this.supplierDescription = supplierDescription;
-        this.supplierAddress = supplierAddress;
+    public Supplier(String supplierName, String supplierAddress, String supplierDescription){
         this.supplierName = supplierName;
+        this.supplierAddress = supplierAddress;
+        this.supplierDescription = supplierDescription;
+        id = SUPPLIER_STRING + (SupplierIDServer.instance()).getId();
     }
 
     public boolean assignProduct(Product product) {
