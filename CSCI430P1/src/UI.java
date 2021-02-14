@@ -80,22 +80,7 @@ public class UI {
             }
         } while (true);
     }
-
-    private void retrieve() {
-        try {
-            Warehouse tempWarehouse = Warehouse.retrieve();
-            if (tempWarehouse != null) {
-                System.out.println(" The library has been successfully retrieved from the file LibraryData \n" );
-                warehouse = tempWarehouse;
-            } else {
-                System.out.println("File doesnt exist; creating new library" );
-                warehouse = Warehouse.instance();
-            }
-        } catch(Exception cnfe) {
-            cnfe.printStackTrace();
-        }
-    }
-
+    
     public void addProduct(){
         Product result;
         int purchasePrice = getNumber("Enter Purchase Price");
@@ -186,4 +171,5 @@ public class UI {
         ui.Display();
     }
 }
+
 
