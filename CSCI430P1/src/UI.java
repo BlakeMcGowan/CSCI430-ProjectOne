@@ -7,6 +7,7 @@ import static com.sun.webkit.CursorManager.HELP;
 
 public class UI {
     private static UI ui;
+    private static Warehouse warehouse;
     private BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
     private static final int ADD_PRODUCT = 0;
     private static final int REMOVE_PRODUCT = 1;
@@ -80,22 +81,56 @@ public class UI {
         } while (true);
     }
 
+    private void retrieve() {
+        try {
+            Warehouse tempWarehouse = Warehouse.retrieve();
+            if (tempWarehouse != null) {
+                System.out.println(" The library has been successfully retrieved from the file LibraryData \n" );
+                warehouse = tempWarehouse;
+            } else {
+                System.out.println("File doesnt exist; creating new library" );
+                warehouse = Warehouse.instance();
+            }
+        } catch(Exception cnfe) {
+            cnfe.printStackTrace();
+        }
+    }
+
     public void addProduct(){
+        Product result;
         int purchasePrice = getNumber("Enter Purchase Price");
         int quantityAvaliable =  getNumber("Enter the Quanittiy Avaliable");
         String productName = getToken("Enter Product Name");
+        result = warehouse.addProduct(purchasePrice, quantityAvaliable, productName);
+        if (result != null) {
+            System.out.println(result);
+        } else {
+            System.out.println("Product could not be added");
+        }
     }
 
     public void addSupplier(){
+        Supplier result;
         String supplierDescription = getToken("Enter Supplier Description");
         String supplierAddress =  getToken("Enter the Suppliers Address");
         String supplierName = getToken("Enter Suppliers Name");
+        result = warehouse.addSupplier(supplierDescription, supplierAddress, supplierName);
+        if (result == null) {
+            System.out.println("Could not add Supplier");
+        }
+        System.out.println(result);
     }
 
     public void addClient(){
+        Client result;
         String clientName = getToken("Please Enter Clients Name");
         String clientPhone = getToken("Please enter phone clients number");
         String clientAddress = getToken("Please enter clients Address");
+        result = warehouse.addClient(clientName, clientPhone, clientAddress);
+        if (result == null) {
+            System.out.println("Could not add Client");
+        }
+        System.out.println(result);
     }
 
     public void removeProudct(){
@@ -120,7 +155,7 @@ public class UI {
     }
 
     public void process() {
-        Display();
+       // Display();
         int command;
         while ((command = getCommand()) != EXIT) {
             switch (command) {
@@ -147,6 +182,8 @@ public class UI {
     }
 
     public static void main(String[] s) {
-
+        ui.process();
+        ui.Display();
     }
 }
+
