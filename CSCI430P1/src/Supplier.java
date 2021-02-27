@@ -10,6 +10,7 @@ public class Supplier implements Serializable
     private List SupplierList = new LinkedList();
     private static final String SUPPLIER_STRING = "S";
     private List<Product> Product = new LinkedList<Product>();
+    private List<Order> orders = new LinkedList<Order>();
 
     //Constructor
     public Supplier(String supplierName, String supplierAddress, String supplierDescription){
@@ -75,7 +76,17 @@ public class Supplier implements Serializable
 
     public boolean equals(String id) {
         return this.id.equals(id);
-      }
+    }
+
+    public Boolean add_Order(Order o)
+    {
+        return orders.add(o);
+    }
+  
+    public Iterator<Order> getOrders()
+    {
+        return orders.iterator();
+    }
       public String toString() {
         String string = " Name:" + supplierName + "   address:"+ supplierAddress + "    description:"+ supplierDescription +"  ID:"+ id +"  ";
         return string;

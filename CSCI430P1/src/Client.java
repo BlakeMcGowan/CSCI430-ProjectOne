@@ -7,19 +7,20 @@ public class Client implements Serializable {
     private String name;
     private String phone;
     private String address;
+    private double balance;
     private static final String MEMBER_STRING = "C";
     private ShoppingCart cart;
     private List<Order> orders;
     private Warehouse warehouse;
 
     //Constructor
-    public Client(String name, String phone, String address, Warehouse owner){
+    public Client(String name, String phone, String address){
         this.name = name;
         this.phone = phone;
         this.address = address;
+        this.balance = 0.00;
         clientid = MEMBER_STRING + (ClientIDServer.instance()).getId();
         cart = new ShoppingCart();
-        warehouse = owner;
     }
 
     public String getClientId() {
@@ -54,7 +55,7 @@ public class Client implements Serializable {
         return this.clientid.equals(id);
     }
       public String toString() {
-        String string = "Client name " + name + " address " + address + " id " + clientid + " phone " + phone;
+        String string = "Client name " + name + " address " + address + " id " + clientid + " phone " + phone + " Balance";
         return string;
     }
 
@@ -68,8 +69,18 @@ public class Client implements Serializable {
         cart.removeProduct(productID, quantity);
     }
 
+    public double getBalance(){
+		return balance;
+	}
+	
+	public void setBalance(double expense){
+		balance += expense;
+	}
+    
+    /*
     public void checkOut()
     {
         orders.add(new Order(cart, warehouse));
     }
+    */
 }

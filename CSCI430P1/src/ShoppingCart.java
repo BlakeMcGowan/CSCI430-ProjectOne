@@ -4,7 +4,7 @@ import java.util.*;
 public class ShoppingCart implements Serializable {
     private String client;
     private Warehouse currentWarehouse;
-	private List<Entry> items = new List<Entry>();
+	private List<Entry> items = new LinkedList<Entry>();
 	
     public void addProduct(String productID, int quantity){
         items.add(new Entry(productID, quantity));

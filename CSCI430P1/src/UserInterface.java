@@ -340,7 +340,7 @@ public class UserInterface {
      sID = getToken("Enter valid ID: ");
     }
 
-    SupplierOrder order = warehouse.CreateSupplierOrder(supplier);
+    Order order = warehouse.CreateOrder(supplier);
     if (order == null){
       return;
     }
@@ -422,8 +422,8 @@ public class UserInterface {
      sID = getToken("Enter valid ID: ");
      s = warehouse.searchSupplier(sID);
     }
-    Iterator<SupplierOrder> o_Traversal = warehouse.getSuppOrders(s);
-    SupplierOrder order;
+    Iterator<Order> o_Traversal = warehouse.getSuppOrders(s);
+    Order order;
     while (o_Traversal.hasNext())
     {
       System.out.println("ORDER NUMBER: " + i + "\n---------------");
@@ -438,7 +438,7 @@ public class UserInterface {
         int j = 1;
         p = p_Traversal.next();
         q = q_Traversal.next();
-        System.out.println("Product: " + p.getID() + ", Quantity: " + q);
+        System.out.println("Product: " + p.getId() + ", Quantity: " + q);
         j++;
       }
       i++;
@@ -523,7 +523,11 @@ public class UserInterface {
                                         
         case LIST_PROD_BY_SUPP  :  listProductsBySupplier();
                                         break;
-                                        
+        case PLACE_ORDER_WITH_SUPPLIER : PlaceOrder();
+                                        break;                               
+        case GET_LIST_ORDERS_SUPP : ListOrdersPlacedWithSupplier();
+                                        break;
+                            
         case HELP               :  help();
                                 	break;
       }
