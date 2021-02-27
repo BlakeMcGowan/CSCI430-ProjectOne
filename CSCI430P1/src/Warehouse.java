@@ -13,13 +13,13 @@ public class Warehouse implements Serializable{
     private Inventory inventory;
     private SupplierList supplierList;
     private ClientList clientList;
-    private SupplierOrderList supplierOrderList;
+    private OrderList orderList;
     private static Warehouse warehouse;
     private Warehouse() {
       inventory = Inventory.instance();
       supplierList = SupplierList.instance();
       clientList = ClientList.instance();
-      supplierOrderList = SupplierOrderList.instance();
+      orderList = OrderList.instance();
     }
 
   public static Warehouse instance() {
@@ -112,9 +112,9 @@ public class Warehouse implements Serializable{
     return supplierList.search(supplierId);
   }
 
-  public boolean addSuppOrder(SupplierOrder order)
+  public boolean addSuppOrder(Order order)
   {
-    return supplierOrderList.addOrder(order);
+    return OrderList.addOrder(order);
   }
 
   public Iterator getProducts() {
@@ -145,30 +145,30 @@ public class Warehouse implements Serializable{
     return product.SearchSupplyList(supp);
   }
 
-  public boolean AddProductsToSuppOrder(Product prod, int q, SupplierOrder o)
+  public boolean AddProductsToSuppOrder(Product prod, int q, Order o)
   {
     return o.addProductToOrder(prod, q);
   }
 
-  public boolean AddOrderSupplier(Supplier s, SupplierOrder o)
+  public boolean AddOrderToSupplier(Supplier s, Order o)
   {
     return s.add_Order(o);
   }
 
-  public SupplierOrder CreateSupplierOrder(Supplier s)
+  public Order CreateOrder(Supplier s)
   {
-    SupplierOrder order = new SupplierOrder(s);
+    Order order = new Order(s);
     return order;
   }
 
-  public Iterator<SupplierOrder> getSuppOrders(Supplier s)
+  public Iterator<Order> getSuppOrders(Supplier s)
   {
     return s.getOrders();
   }
 
-  public SupplierOrder searchSuppOrders(String oID)
+  public Order searchSuppOrders(String oID)
   {
-    return supplierOrderList.search(oID);
+    return OrderList.search(oID);
   }
   public static Warehouse retrieve() {
     try {
@@ -223,6 +223,6 @@ public class Warehouse implements Serializable{
     }
   }
   public String toString() {
-    return clientList + "\n" + supplierList + "\n" + inventory + "\n" supplierOrderList;
+    return clientList + "\n" + supplierList + "\n" + inventory + "\n" + orderList;
   }
 }
