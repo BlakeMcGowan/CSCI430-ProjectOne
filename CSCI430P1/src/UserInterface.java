@@ -21,7 +21,10 @@ public class UserInterface {
   private static final int UNASSIGN_PRODUCT = 10;
   private static final int LIST_SUPP_OF_PROD = 11;
   private static final int LIST_PROD_BY_SUPP = 12;
-  private static final int HELP = 13;
+  private static final int PLACE_ORDER_WITH_SUPPLIER = 13;
+  private static final int GET_LIST_ORDERS_SUPP = 14;
+  private static final int GET_LIST_UNPAID = 15;
+  private static final int HELP = 16;
   
   private UserInterface() {
     if (yesOrNo("Look for saved data and  use it?")) {
@@ -88,16 +91,19 @@ public class UserInterface {
     System.out.println(EXIT + " to Exit.");
     System.out.println(SAVE + " to save the warehouse.");
     System.out.println(RETRIEVE + " to retrieve the warehouse.");
-    System.out.println(ADD_SUPPLIERS + " to add a manufacturer.");
-    System.out.println(SHOW_SUPPLIERS + " to show the manufacturers list.");
+    System.out.println(ADD_SUPPLIERS + " to add a supplier.");
+    System.out.println(SHOW_SUPPLIERS + " to show the suppliers list.");
     System.out.println(ADD_PRODUCT + " to add a product.");
     System.out.println(SHOW_PRODUCTS + " to show the product list.");
     System.out.println(ADD_CLIENT + " to add a client.");
     System.out.println(SHOW_CLIENTS + " to show the client list.");
-    System.out.println(ASSIGN_PRODUCT + " to assign a product to a manufacturer");
-    System.out.println(UNASSIGN_PRODUCT + " to unassign a product from manufacturer");
+    System.out.println(ASSIGN_PRODUCT + " to assign a product to a supplier");
+    System.out.println(UNASSIGN_PRODUCT + " to unassign a product from supplier");
     System.out.println(LIST_SUPP_OF_PROD + " to list suppliers of a specified product");
-    System.out.println(LIST_PROD_BY_SUPP + " to list products supplied by a specified manufacturer");
+    System.out.println(LIST_PROD_BY_SUPP + " to list products supplied by a specified supplier");
+    System.out.println(PLACE_ORDER_WITH_SUPPLIER + " to place an order with a supplier");
+    System.out.println(GET_LIST_ORDERS_SUPP + " to get a list of orders placed with a supplier");
+    System.out.println(GET_LIST_UNPAID + " to get a list of clients with an outstanding balance.");
     System.out.println(HELP + " for help");
   }
 
@@ -174,13 +180,25 @@ public class UserInterface {
       return;
     }
 
-    Float p;
+    double p;
     while (true)
     {
       String price = getToken("Enter product unit price: ");
       try {
         p = Float.parseFloat(price);
         break; // will only get to here if input was a double
+        } catch (NumberFormatException ignore) {
+        System.out.println("Invalid input");
+      }
+    }
+
+    int q;
+    while (true)
+    {
+      String quantity = getToken("Enter product quantity:  (if unknown or NA, enter 0)");
+      try {
+        q = Integer.parseInt(quantity);
+        break; // will only get to here if input was an int
         } catch (NumberFormatException ignore) {
         System.out.println("Invalid input");
       }
@@ -301,6 +319,145 @@ public class UserInterface {
       System.out.println("Supplier doesn't exist");
     }
   }
+
+  public void PlaceOrder()
+  {
+    String pID;
+    int quantity;
+    Product product;
+    Supplier supplier;
+    Boolean success;
+    int Mcount=1;
+    int Pcount=1;
+    int Scount=1;
+    String sID = getToken("Enter supplier ID: ");
+    while((supplier = warehouse.searchSupplier(sID)) == null){
+      System.out.println("Supplier doesn't exist.");
+      if(Scount++ == 2){
+        System.out.println("You have reached the maximum try. Try next time.");
+        return;
+      }
+     sID = getToken("Enter valid ID: ");
+    }
+
+    SupplierOrder order = warehouse.CreateSupplierOrder(supplier);
+    if (order == null){
+      return;
+    }
+    do {
+      pID = getToken("Enter product ID: ");
+      while ((product = warehouse.searchProduct(pID)) == null)
+      {
+        System.out.println("Product doesnt exist in the warehouse.");
+        if(Pcount++ == 2){
+          System.out.println("You have reached the maximum try. Try next time. Thank you.");
+          return;
+      }
+        pID = getToken("Enter a Valid ID: ");
+      }
+
+      while ((supplier = warehouse.searchProductSupplier(product, supplier)) == null)
+      {
+        System.out.println("Product isn't supplied by specified supplier");
+        if(Scount++ == 3){
+          System.out.println("You have reached the maximum try. Try next time. Thank you.");
+          return;
+        }
+        pID = getToken("Enter product ID: ");
+        while ((product = warehouse.searchProduct(pID)) == null)
+        {
+          System.out.println("Product doesnt exist in the warehouse.");
+          if(Scount++ == 3){
+            System.out.println("You have reached the maximum try. Try next time. Thank you.");
+            return;
+         }
+          pID = getToken("Enter a Valid ID: ");
+        }
+      }
+
+      while (true)
+      {
+        String q = getToken("Enter quantity: ");
+        try {
+          quantity = Integer.parseInt(q);
+          break; // will only get to here if input was an int
+          } catch (NumberFormatException ignore) {
+            System.out.println("Invalid input");
+        }
+      }
+      success = warehouse.AddProductsToSuppOrder(product, quantity, order);
+      if (!success){
+        System.out.println("Couldn't add to order.");
+        return;
+      }
+    }while (yesOrNo("Add another product to order? "));
+
+
+    success = warehouse.AddOrderToSupplier(supplier, order);
+    success = warehouse.addSuppOrder(order);
+    if (success)
+    {
+      System.out.println("Order added successfully");
+      System.out.println("Order ID: " + order.getID());
+    }
+
+    else
+    {
+      System.out.println("Failed to add order");
+    }
+  }
+
+  private void ListOrdersPlacedWithSupplier()
+  {
+    String sID = getToken("Enter supplier ID: ");
+    Supplier s = warehouse.searchSupplier(sID);
+    int i= 1;
+    int k =1;
+    while(s == null){
+      System.out.println("Supplier doesn't exist.");
+      if(k++ == 2){
+        System.out.println("You have reached the maximum try. Try next time.");
+        return;
+      }
+     sID = getToken("Enter valid ID: ");
+     s = warehouse.searchSupplier(sID);
+    }
+    Iterator<SupplierOrder> o_Traversal = warehouse.getSuppOrders(s);
+    SupplierOrder order;
+    while (o_Traversal.hasNext())
+    {
+      System.out.println("ORDER NUMBER: " + i + "\n---------------");
+      order = o_Traversal.next();
+      System.out.println("Oder ID: " + order.getID());
+      Iterator<Product> p_Traversal = order.getProds();
+      Product p;
+      Iterator<Integer> q_Traversal = order.getQs();
+      int q;
+      while (p_Traversal.hasNext() && q_Traversal.hasNext())
+      {
+        int j = 1;
+        p = p_Traversal.next();
+        q = q_Traversal.next();
+        System.out.println("Product: " + p.getID() + ", Quantity: " + q);
+        j++;
+      }
+      i++;
+      System.out.println("");
+    }
+  }
+
+  private void ListUnpaidBalance()
+  {
+      Iterator <Client> unpaidClient =  warehouse.getClients();
+      System.out.println("---------------------------------------------------------------");
+      while (unpaidClient.hasNext()){
+    Client client = unpaidClient.next();
+    	   if (client.getBalance() > 0)
+               System.out.println(client.toString());
+      }
+      System.out.println("---------------------------------------------------------------\n");  
+  }
+
 
   private void save() {
     if (Warehouse.save()) {
