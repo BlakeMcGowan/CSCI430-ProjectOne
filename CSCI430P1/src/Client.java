@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.util.List;
 
 public class Client implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -7,6 +8,8 @@ public class Client implements Serializable {
     private String phone;
     private String address;
     private static final String MEMBER_STRING = "C";
+    private ShoppingCart cart;
+    private List<Order> orders;
 
     //Constructor
     public Client(String name, String phone, String address){
@@ -14,6 +17,7 @@ public class Client implements Serializable {
         this.phone = phone;
         this.address = address;
         clientid = MEMBER_STRING + (ClientIDServer.instance()).getId();
+        cart = new ShoppingCart();
     }
 
     public String getClientId() {
@@ -50,5 +54,20 @@ public class Client implements Serializable {
       public String toString() {
         String string = "Client name " + name + " address " + address + " id " + clientid + " phone " + phone;
         return string;
+    }
+
+    public void addToCart(String productID, int quantity)
+    {
+        cart.addProduct(productID, quantity);
+    }
+
+    public void removeFromCart(String productID, int quantity)
+    {
+        cart.removeProduct(productID, quantity);
+    }
+
+    public void checkOut()
+    {
+        orders.add(new Order(cart));
     }
 }
