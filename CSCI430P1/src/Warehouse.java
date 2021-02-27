@@ -55,7 +55,7 @@ public class Warehouse implements Serializable{
     return null;
   }
 
-  public Product assignProdToSupplier (String productId, String supplierId, Float price){
+  public Product assignProdToSupplier (String productId, String supplierId, double price){
     Product product = inventory.search(productId);
     if (product == null)
     {
