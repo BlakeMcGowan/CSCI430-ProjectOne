@@ -10,14 +10,16 @@ public class Client implements Serializable {
     private static final String MEMBER_STRING = "C";
     private ShoppingCart cart;
     private List<Order> orders;
+    private Warehouse warehouse;
 
     //Constructor
-    public Client(String name, String phone, String address){
+    public Client(String name, String phone, String address, Warehouse owner){
         this.name = name;
         this.phone = phone;
         this.address = address;
         clientid = MEMBER_STRING + (ClientIDServer.instance()).getId();
         cart = new ShoppingCart();
+        warehouse = owner;
     }
 
     public String getClientId() {
@@ -68,6 +70,6 @@ public class Client implements Serializable {
 
     public void checkOut()
     {
-        orders.add(new Order(cart));
+        orders.add(new Order(cart, warehouse));
     }
 }
