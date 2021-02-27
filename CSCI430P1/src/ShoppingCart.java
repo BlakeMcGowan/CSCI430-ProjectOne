@@ -11,7 +11,14 @@ public class ShoppingCart implements Serializable {
     }
 
     public void removeProduct(String productID, int quantity){
-        //remove product
+        Iterator<Entry> i = items.iterator();
+        while (i.hasNext()) {
+            Entry entry = i.next();
+            if(productID == entry.productID)
+                entry.count = entry.count - quantity;
+            if(entry.count <= 0)
+                i.remove();
+        }
     }
 	
 	public String GetClient()
