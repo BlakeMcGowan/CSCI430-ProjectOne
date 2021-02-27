@@ -13,11 +13,13 @@ public class Warehouse implements Serializable{
     private Inventory inventory;
     private SupplierList supplierList;
     private ClientList clientList;
+    private SupplierOrderList supplierOrderList;
     private static Warehouse warehouse;
     private Warehouse() {
       inventory = Inventory.instance();
       supplierList = SupplierList.instance();
       clientList = ClientList.instance();
+      supplierOrderList = SupplierOrderList.instance();
     }
 
   public static Warehouse instance() {
@@ -68,15 +70,7 @@ public class Warehouse implements Serializable{
       return null;
     }
 
-    int location = 0;
-    location = product.SearchSupplyList(supplier);
-    if (location != -1)
-    {
-      return null;
-    }
-
     boolean success = product.link(supplier);
-    success = product.addPrice(price);
     success = supplier.assignProduct(product);
     if (success) {
       return product;
@@ -99,16 +93,7 @@ public class Warehouse implements Serializable{
       return null;
     }
 
-    int location = 0;
-    location = product.SearchSupplyList(supplier);
-    if (location == -1)
-    {
-      System.out.println("Product was never assigned to this supplier.");
-      return null;
-    }
-
     boolean success = product.unlink(supplier);
-    success = product.removePrice(location);
     success = supplier.removeProduct(product);
     if (success) {
       return product;
@@ -127,7 +112,10 @@ public class Warehouse implements Serializable{
     return supplierList.search(supplierId);
   }
 
-
+  public boolean addSuppOrder(SupplierOrder order)
+  {
+    return supplierOrderList.addOrder(order);
+  }
 
   public Iterator getProducts() {
     return inventory.getProducts();
@@ -153,6 +141,35 @@ public class Warehouse implements Serializable{
     return p.getPrices();
   }
 
+  public Supplier searchProductSupplier(Product product, Supplier supp){
+    return product.SearchSupplyList(supp);
+  }
+
+  public boolean AddProductsToSuppOrder(Product prod, int q, SupplierOrder o)
+  {
+    return o.addProductToOrder(prod, q);
+  }
+
+  public boolean AddOrderSupplier(Supplier s, SupplierOrder o)
+  {
+    return s.add_Order(o);
+  }
+
+  public SupplierOrder CreateSupplierOrder(Supplier s)
+  {
+    SupplierOrder order = new SupplierOrder(s);
+    return order;
+  }
+
+  public Iterator<SupplierOrder> getSuppOrders(Supplier s)
+  {
+    return s.getOrders();
+  }
+
+  public SupplierOrder searchSuppOrders(String oID)
+  {
+    return supplierOrderList.search(oID);
+  }
   public static Warehouse retrieve() {
     try {
       FileInputStream file = new FileInputStream("WarehouseData");
@@ -206,6 +223,6 @@ public class Warehouse implements Serializable{
     }
   }
   public String toString() {
-    return inventory + "\n" + clientList;
+    return clientList + "\n" + supplierList + "\n" + inventory + "\n" supplierOrderList;
   }
 }

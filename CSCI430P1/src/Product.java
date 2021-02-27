@@ -63,18 +63,17 @@ public class Product implements Serializable {
         return productSupplier.iterator();
     }
 
-    public int SearchSupplyList(Supplier supplier)
+    public Supplier SearchSupplyList(Supplier supplier)
     {
         int i = 0;
         for (; i <= productSupplier.size()-1; i++)
         {
             if((productSupplier.get(i)) == supplier)
             {
-                return i;
+                return productSupplier.get(i);
             }
         }
-        i = -1;
-        return i;
+        return null;
     }
 
     public Boolean addPrice(Float price){
@@ -91,17 +90,21 @@ public class Product implements Serializable {
           return false;
         }
       }
+    
+    public List<Supplier> getList(){
+        return productSupplier;
+    }
+
+    public Iterator<Float> getPrices(){
+        return productPrices.iterator();
+    }
   
-      public Iterator<Float> getPrices(){
-            return productPrices.iterator();
-        }
-  
-      public double moneyRound(float num) {
-          return Math.round(num * 100.00) / 100.00;
-      }
+    public double moneyRound(float num) {
+        return Math.round(num * 100.00) / 100.00;
+    }
+
     public String toString() {
-          return "Product: " + productName + " ID: " + id + " Qty: " + quantityAvailable;
-  
-      }
+          return "Product: " + productName + " ID: " + id + " Qty: " + quantityAvailable; 
+    }
 
 }
