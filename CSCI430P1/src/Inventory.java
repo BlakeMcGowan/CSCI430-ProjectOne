@@ -24,6 +24,11 @@ public class Inventory implements Serializable
         return true;
     }
 
+    public boolean removeProduct(Product product){
+        products.remove(product);
+        return true;
+    }
+
     public Product search(String productId)
     {
         for (Iterator iterator = products.iterator(); iterator.hasNext();){
