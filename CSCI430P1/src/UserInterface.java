@@ -25,9 +25,10 @@ public class UserInterface {
   private static final int GET_WAIT_ORD_FOR_CLIENT = 16;
   private static final int GET_LIST_ORDERS_SUPP = 17;
   private static final int RECEIVE_A_SHIPMENT = 18;
-  private static final int SAVE = 19;
-  private static final int RETRIEVE = 20;
-  private static final int HELP = 21;
+  private static final int EDIT_ORDER = 19;
+  private static final int SAVE = 20;
+  private static final int RETRIEVE = 21;
+  private static final int HELP = 22;
   
   private UserInterface() {
     if (yesOrNo("Look for saved data and  use it?")) {
@@ -125,6 +126,7 @@ public class UserInterface {
     System.out.println(GET_WAIT_ORD_FOR_CLIENT + " to get a list of waitlisted orders for a client");
     System.out.println(GET_LIST_ORDERS_SUPP + " to get a list of orders placed with a supplier");
     System.out.println(RECEIVE_A_SHIPMENT + " to receive a Shipment from the supplier");
+    System.out.println(EDIT_ORDER + " to modify an existing Order");
     System.out.println(SAVE + " to save the warehouse.");
     System.out.println(RETRIEVE + " to retrieve the warehouse.");
     System.out.println(HELP + " for help");
@@ -707,6 +709,51 @@ public class UserInterface {
     System.out.println("Remainig products successfully added to inventory.\n");
   }
 
+  private void editOrder(){
+    int O_count = 1;
+    String oID = getToken("Enter the order ID: ");
+    Order order ;
+    while((order = warehouse.searchSuppOrders(oID)) == null){
+      System.out.println("No such order found. ");
+      if(O_count++ == 3){
+        System.out.println("You have reached the maximum try. Try next time.\n");
+        return;
+      }
+      oID = getToken("Enter the valild order ID: ");
+    }
+
+    if (order.getOrderStatus() == true)
+    {
+      System.out.println("Order has already been processed and received\n");
+      return;
+    }
+
+    Supplier supplier = order.getSupplier();
+    Iterator<Product> allProducts = order.getProds();
+    Product p;
+    Iterator<Integer> quantities = order.getQs();
+    int q;
+    System.out.println("Order details");
+    System.out.println("-------------");
+    while (allProducts.hasNext() && quantities.hasNext())
+    {
+      int j = 1;
+      p = allProducts.next();
+      q = quantities.next();
+      System.out.println("Product: " + p.getId() + ", Quantity: " + q);
+      j++;
+    }
+
+    boolean add = yesOrNo("Add more items to order?");
+    if (add)
+    {
+      PlaceOrder();
+    }
+    else
+    {
+      System.out.println("Order not updated");
+    }
+  }
 
   private void save() {
     if (Warehouse.save()) {
@@ -772,6 +819,8 @@ public class UserInterface {
         case GET_LIST_ORDERS_SUPP : ListOrdersPlacedWithSupplier();
                                     break;
         case RECEIVE_A_SHIPMENT   : ReceiveShipment();
+                                    break;
+        case EDIT_ORDER           : editOrder();
                                     break;
         case SAVE              :  save();
                                   break;
