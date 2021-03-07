@@ -4,9 +4,9 @@ import java.io.*;
 
 public class ClientList implements Serializable
 {
-    private static int IDGenerator = 0;
     private static final long serialVersionUID = 1L;
-    private List clients = new LinkedList();
+    private List<Client> clients = new LinkedList();
+    private List<ClientOrder> Orders = new LinkedList<ClientOrder>();
     private static ClientList clientList;
 
     private ClientList(){}
@@ -29,6 +29,16 @@ public class ClientList implements Serializable
     {
         return clients.iterator();
     }
+
+    public Client search(String clientID) {
+        for (Iterator iterator = clients.iterator(); iterator.hasNext(); ) {
+            Client client = (Client) iterator.next();
+            if (client.getClientId().equals(clientID)) {
+                return client;
+            }
+        }
+        return null;
+    }
     
     private void writeObject(java.io.ObjectOutputStream output) {
         try {
@@ -39,20 +49,27 @@ public class ClientList implements Serializable
         }
     }
 
-    private void readObject(java.io.ObjectInputStream input) {
-        try {
-            if (clientList != null) {
-                return;
-            } else {
-                input.defaultReadObject();
-                if (clientList == null) {
-                    clientList = (ClientList) input.readObject();
-                } else {
-                    input.readObject();
-                }
-            }
+    private void readObject(java.io.ObjectInputStream input)
+    {
+      try{
+        if(clientList != null)
+        {
+          return;
+        }
+        else
+        {
+          input.defaultReadObject();
+          if(clientList == null)
+          {
+            clientList = (ClientList) input.readObject();
+          }
+          else
+          {
+            input.readObject();
+          }
+        }
         } catch(IOException ioe) {
-            System.out.println("in ClientList readObject \n" + ioe);
+            ioe.printStackTrace();
         } catch(ClassNotFoundException cnfe) {
             cnfe.printStackTrace();
         }

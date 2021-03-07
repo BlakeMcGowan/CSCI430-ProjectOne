@@ -5,8 +5,7 @@ import java.io.*;
 public class SupplierList implements Serializable
  {
     private static final long serialVersionUID = 1L;
-    private static int IDGenerator = 0;
-    private List suppliers = new LinkedList();
+    private List<Supplier> suppliers = new LinkedList();
     private static SupplierList supplierList;
 
     private SupplierList(){}
@@ -48,7 +47,7 @@ public class SupplierList implements Serializable
             output.defaultWriteObject();
             output.writeObject(supplierList);
         } catch(IOException ioe) {
-            System.out.println(ioe);
+            ioe.printStackTrace();
         }
     }
 
@@ -65,7 +64,7 @@ public class SupplierList implements Serializable
                 }
             }
         } catch(IOException ioe) {
-            System.out.println("in SupplierList readObject \n" + ioe);
+            ioe.printStackTrace();
         } catch(ClassNotFoundException cnfe) {
             cnfe.printStackTrace();
         }

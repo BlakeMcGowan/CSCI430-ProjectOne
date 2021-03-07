@@ -5,8 +5,7 @@ import java.io.*;
 public class Inventory implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    private static int IDGenerator = 0;
-    private List products = new LinkedList();
+    private List<Product> products = new LinkedList<Product>();
     private static Inventory inventory;
 
     private Inventory(){}

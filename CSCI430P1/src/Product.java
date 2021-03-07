@@ -3,18 +3,18 @@ import java.util.*;
 import java.io.*;
 
 public class Product implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String id;
     private int purchasePrice;
     private int quantityAvailable;
     private String productName;
-    private List<Supplier> productSupplier = new LinkedList<Supplier>();
+    private List<SupplierShipment> productSupplier = new LinkedList<SupplierShipment>();
+    private List<Waitlist> waitlistedClients = new LinkedList<Waitlist>();
     private List<Float> productPrices = new LinkedList<Float>();
     private static final String PRODUCT_STRING = "P";
 
     //Constructor
-    public Product(int purchasePrice, int quantityAvaliable, String productName){
-        this.purchasePrice = purchasePrice;
-        this.quantityAvailable = quantityAvaliable;
+    public Product(String productName){
         this.productName = productName;
         id = PRODUCT_STRING + (ProductIDServer.instance()).getId();
     }
@@ -51,29 +51,35 @@ public class Product implements Serializable {
         return this.id.equals(id);
     }
     
-    public boolean link(Supplier supplier){
-        return productSupplier.add(supplier) ? true: false;
+    public boolean link(Supplier supplierShipment, int q, double p){
+        SupplierShipment Ship = new SupplierShipment (supplierShipment, q, p);
+        return productSupplier.add(Ship) ? true: false;
     }
 
-    public boolean unlink(Supplier supplier){
-        return productSupplier.remove(supplier) ? true: false;
+    public boolean unlink(SupplierShipment supplierShipment){
+        return productSupplier.remove(supplierShipment) ? true: false;
     }
 
-    public Iterator<Supplier> getSupplier() {
+    public Iterator<SupplierShipment> getSupplier() {
         return productSupplier.iterator();
     }
 
-    public Supplier SearchSupplyList(Supplier supplier)
+    public SupplierShipment SearchSupplyList(Supplier supplierShipment)
     {
         int i = 0;
         for (; i <= productSupplier.size()-1; i++)
         {
-            if((productSupplier.get(i)) == supplier)
+            if((productSupplier.get(i).getSupplier()) == supplierShipment)
             {
                 return productSupplier.get(i);
             }
         }
         return null;
+    }
+
+    public Iterator<Waitlist> getWaitlistedClients()
+    {
+      return waitlistedClients.iterator();
     }
 
     public Boolean addPrice(Float price){
@@ -91,12 +97,16 @@ public class Product implements Serializable {
         }
       }
     
-    public List<Supplier> getList(){
+    public List<SupplierShipment> getList(){
         return productSupplier;
     }
 
     public Iterator<Float> getPrices(){
         return productPrices.iterator();
+    }
+
+    public boolean addClientToWaitlist(Waitlist w){
+        return waitlistedClients.add(w);
     }
   
     public double moneyRound(float num) {
@@ -104,7 +114,7 @@ public class Product implements Serializable {
     }
 
     public String toString() {
-          return "Product: " + productName + " ID: " + id + " Qty: " + quantityAvailable; 
+          return "Product: " + productName + " ID: " + id; 
     }
 
 }
