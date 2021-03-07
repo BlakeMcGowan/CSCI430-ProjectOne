@@ -6,15 +6,14 @@ public class Warehouse implements Serializable{
     public static final int SUPPLIER_NOT_FOUND = 1;
     public static final int PRODUCT_NOT_FOUND = 2;
     public static final int CLIENT_NOT_FOUND = 3;
-    public static final int NO_SUCH_PRODUCT = 4;
-    public static final int NO_SUCH_SUPPLIER = 5;
-    public static final int NO_SUCH_CLIENT = 6;
 
     private Inventory inventory;
     private SupplierList supplierList;
     private ClientList clientList;
     private OrderList orderList;
+
     private static Warehouse warehouse;
+
     private Warehouse() {
       inventory = Inventory.instance();
       supplierList = SupplierList.instance();
@@ -33,12 +32,17 @@ public class Warehouse implements Serializable{
     }
   }
 
-  public Product addProduct(int price, int quantity, String name){
-    Product product = new Product(price, quantity, name);
-    if (inventory.insertProduct(product)) {
-        return (product);
+  public Product addProduct(String Name)
+  {
+    Product product = new Product(Name);
+    if (inventory.insertProduct(product))
+    {
+      return (product);
     }
-    return null;
+    else
+    {
+      return null;
+    }
   }
 
   public Supplier addSupplier(String name, String address, String description){
@@ -49,15 +53,15 @@ public class Warehouse implements Serializable{
     return null;
   } 
 
-  public Client addClient(String name, String phone, String address){
-    Client client = new Client (name, phone, address);
+  public Client addClient(String name, String phone, String address, double billing){
+    Client client = new Client (name, phone, address, billing);
     if (clientList.insertClient(client)){
         return(client);
     }
     return null;
   }
 
-  public Product assignProdToSupplier (String productId, String supplierId, double price){
+  public Product assignProdToSupplier (String productId, String supplierId, double price, int quantity){
     Product product = inventory.search(productId);
     if (product == null)
     {
@@ -70,7 +74,12 @@ public class Warehouse implements Serializable{
       return null;
     }
 
-    boolean success = product.link(supplier);
+    SupplierShipment Ship = product.SearchSupplyList(supplier);
+    if (Ship != null)
+    {
+      return null;
+    }
+    boolean success = product.link(supplier, quantity, price);
     success = supplier.assignProduct(product);
     if (success) {
       return product;
@@ -92,8 +101,14 @@ public class Warehouse implements Serializable{
     {
       return null;
     }
+    SupplierShipment Ship = product.SearchSupplyList(supplier);
+    if (Ship == null)
+    {
+      System.out.println("Product already isn't assigned to this supplier.");
+      return null;
+    }
 
-    boolean success = product.unlink(supplier);
+    boolean success = product.unlink(Ship);
     success = supplier.removeProduct(product);
     if (success) {
       return product;
@@ -102,6 +117,11 @@ public class Warehouse implements Serializable{
       System.out.println("Error 4");
       return null;
     }
+  }
+
+  public Client searchClient(String cID)
+  {
+    return clientList.search(cID);
   }
 
   public Product searchProduct(String productId){
@@ -129,7 +149,7 @@ public class Warehouse implements Serializable{
     return clientList.getClients();
   }
 
-  public Iterator<Supplier> getSuppliersOfProduct (Product p){
+  public Iterator<SupplierShipment> getSuppliersOfProduct (Product p){
     return p.getSupplier();
   }
 
@@ -141,8 +161,44 @@ public class Warehouse implements Serializable{
     return p.getPrices();
   }
 
-  public Supplier searchProductSupplier(Product product, Supplier supp){
+  public SupplierShipment searchProductSupplier(Product product, Supplier supp){
     return product.SearchSupplyList(supp);
+  }
+
+  public void FulfillWaitlist(Product p, int NewQ, SupplierShipment supplier){
+    Iterator<Waitlist> iterator = p.getWaitlistedClients();
+    Waitlist w;
+    Client c;
+    int WaitlistedQ;
+    while ((iterator.hasNext()) && (NewQ >= 0))
+    {
+      w = iterator.next();
+      WaitlistedQ = w.getQuantity();
+      c = w.getClient();
+      if ((NewQ - WaitlistedQ) >= 0)
+      {
+        NewQ = NewQ - WaitlistedQ;
+        double price = WaitlistedQ * supplier.getPrice();
+        c.updateBalance(price);
+        iterator.remove(); 
+        Waitlist Wlist = c.searchWaitListOnProduct(p);
+        boolean success = c.removeWaitlistedProduct(Wlist);
+      }
+      else
+      {
+        double price = NewQ * supplier.getPrice();
+        w.updateQuantity(WaitlistedQ - NewQ);
+        NewQ = NewQ - NewQ;
+        c.updateBalance(price);
+      }
+
+    }
+    supplier.setNewQuantity(supplier.getQuantity() - NewQ);
+  }
+
+  public boolean AddProdToOrder(Product product, int quantity, ClientOrder order, Client c)
+  {
+    return order.AddProdToOrder(product, quantity, c);
   }
 
   public boolean AddProductsToSuppOrder(Product prod, int q, Order o)
@@ -159,6 +215,31 @@ public class Warehouse implements Serializable{
   {
     Order order = new Order(s);
     return order;
+  }
+
+  public ClientOrder CreateClientOrder(Client client)
+  {
+    return client.newOrder();
+  }
+
+  public double GetOrderTotal(ClientOrder order)
+  {
+    return order.getTotal();
+  }
+
+  public double updateClientBalance(Client c, Double orderTotal)
+  {
+    return c.updateBalance(orderTotal);
+  }
+
+  public Iterator<Waitlist> getWaitlistedClients(Product p)
+  {
+    return p.getWaitlistedClients();
+  }
+
+  public Iterator<Waitlist> getWaitlistedProducts(Client c)
+  {
+    return c.getWaitlistedProducts();
   }
 
   public Iterator<Order> getSuppOrders(Supplier s)

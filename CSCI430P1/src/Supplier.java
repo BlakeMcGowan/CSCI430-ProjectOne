@@ -3,12 +3,11 @@ import java.util.*;
 public class Supplier implements Serializable 
 {
     private static final long serialVersionUID = 1L;
+    private static final String SUPPLIER_STRING = "S";
     private String id;
     private String supplierDescription;
     private String supplierAddress;
     private String supplierName;
-    private List SupplierList = new LinkedList();
-    private static final String SUPPLIER_STRING = "S";
     private List<Product> Product = new LinkedList<Product>();
     private List<Order> orders = new LinkedList<Order>();
 
@@ -30,6 +29,11 @@ public class Supplier implements Serializable
             return false;
         }
     }
+
+    public int getSizeProdList()
+	{
+		return Product.size();
+	}
 
     public boolean removeProduct(Product product){
         if (Product.remove(product))

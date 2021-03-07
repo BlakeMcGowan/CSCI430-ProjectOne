@@ -1,5 +1,5 @@
-import java.io.Serializable;
-import java.util.List;
+import java.util.*;
+import java.io.*;
 
 public class Client implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -7,18 +7,18 @@ public class Client implements Serializable {
     private String name;
     private String phone;
     private String address;
-    private double balance;
+    private double Client_billing;
     private static final String MEMBER_STRING = "C";
     private ShoppingCart cart;
-    private List<Order> orders;
+	private List<Waitlist> waitlistedProducts = new LinkedList<Waitlist>();
     private Warehouse warehouse;
 
     //Constructor
-    public Client(String name, String phone, String address){
+    public Client(String name, String phone, String address, double billing){
         this.name = name;
         this.phone = phone;
         this.address = address;
-        this.balance = 0.00;
+		this.Client_billing = billing;
         clientid = MEMBER_STRING + (ClientIDServer.instance()).getId();
         cart = new ShoppingCart();
     }
@@ -39,6 +39,17 @@ public class Client implements Serializable {
         return address;
     }
 
+    public Double getBilling()
+    {
+          return Client_billing;
+    }
+  
+    public Double updateBalance(Double orderPrice)
+    {
+        this.Client_billing = Client_billing - orderPrice;
+        return Client_billing;
+    }
+
     public void setName(String newName){
         name = newName;
     }
@@ -54,10 +65,6 @@ public class Client implements Serializable {
     public boolean equals(String id) {
         return this.clientid.equals(id);
     }
-      public String toString() {
-        String string = "Client name " + name + " address " + address + " id " + clientid + " phone " + phone + " Balance";
-        return string;
-    }
 
     public void addToCart(String productID, int quantity)
     {
@@ -69,14 +76,46 @@ public class Client implements Serializable {
         cart.removeProduct(productID, quantity);
     }
 
-    public double getBalance(){
-		return balance;
+	public ClientOrder newOrder()
+	{
+		ClientOrder order = new ClientOrder();
+		return order;
 	}
-	
-	public void setBalance(double expense){
-		balance += expense;
+
+	public boolean addProductToWaitlist(Waitlist w){
+		return waitlistedProducts.add(w);
 	}
-    
+
+	public boolean removeWaitlistedProduct(Waitlist w)
+	{
+		return waitlistedProducts.remove(w);
+	}
+
+	public Iterator<Waitlist> getWaitlistedProducts()
+	{
+		return waitlistedProducts.iterator();
+	}
+
+	public Waitlist searchWaitListOnProduct(Product p)
+	{
+		Iterator<Waitlist> iterator = waitlistedProducts.iterator();
+		Waitlist w;
+		while (iterator.hasNext())
+		{
+			w = iterator.next();
+			if (w.getProduct() == p)
+			{
+				return w;
+			}
+		}
+		return null;
+	}
+
+    public String toString() {
+        String string = "Client name " + name + " address " + address + " id " + clientid + " phone " + phone + " Balance: $" + getBilling();
+        return string;
+    }
+
     /*
     public void checkOut()
     {

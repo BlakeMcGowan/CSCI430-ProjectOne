@@ -1,14 +1,15 @@
 import java.util.*;
 import java.io.*;
-import java.lang.*;
 
 public class Order implements Serializable{
-    private List<Entry> items;
-    private float total;
+
     private static final long serialVersionUID = 1L;
     public static final String ORDER_STRING = "O";
     private String ID;
+    private float total;
+    private Boolean RECEIVED_FLAG;
     private Supplier supplier;
+    private List<Entry> items;
     private List<Product> products = new LinkedList<Product>();
     private List<Integer> quantities = new LinkedList<Integer>();
 
@@ -24,9 +25,19 @@ public class Order implements Serializable{
     }
     */
     
-    public Order(Supplier s){
+      public Order(Supplier s){
         this.supplier = s;
+        this.RECEIVED_FLAG = false;
         ID = ORDER_STRING + (OrderIDServer.instance()).getID();
+      }
+
+      public boolean getOrderStatus(){
+        return RECEIVED_FLAG;
+      }
+    
+      public boolean receiveOrder(){
+        this.RECEIVED_FLAG = true;
+        return RECEIVED_FLAG;
       }
     
       public boolean addProductToOrder(Product p, int q){
